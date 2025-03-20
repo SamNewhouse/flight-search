@@ -1,5 +1,5 @@
 import { GraphQLContext } from "../graphql/context";
-import { getCache, setCache } from "../lib/redis"; // Import Redis functions
+import { getCache, setCache } from "../lib/redis";
 import { FlightByIdArgs, FlightsArgs } from "./types";
 
 // Default fields to select
@@ -19,15 +19,6 @@ const defaultSelectFields = {
 export const resolvers = {
   Query: {
     flights: async (_parent: unknown, args: FlightsArgs, ctx: GraphQLContext) => {
-      const cacheKey = `flights:${JSON.stringify(args)}`;
-      const cachedData = await getCache(cacheKey);
-
-      if (cachedData) {
-        console.log("🔵 Returning cached flight data");
-        return cachedData;
-      }
-
-      console.log("🟢 Fetching flight data from DB...");
       const filters = Object.fromEntries(Object.entries(args).filter(([_, value]) => value !== undefined));
 
       const flights = await ctx.prisma.flight.findMany({
@@ -36,8 +27,6 @@ export const resolvers = {
       });
 
       if (!flights.length) throw new Error("No flights found matching your criteria.");
-
-      await setCache(cacheKey, flights, 300); // Cache for 5 minutes
       return flights;
     },
 
@@ -60,7 +49,7 @@ export const resolvers = {
 
       if (!flight) throw new Error("Flight not found.");
 
-      await setCache(cacheKey, flight, 600); // Cache for 10 minutes
+      await setCache(cacheKey, flight, 1800);
       return flight;
     },
   },
