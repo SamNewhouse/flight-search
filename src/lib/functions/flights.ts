@@ -27,5 +27,5 @@ export function calculateFlightDuration(distance: number): number {
  * Generates a random departure time in the future.
  */
 export function getRandomDepartureTime(): Date {
-  return faker.date.soon({ days: 90 }); // Random flight within the next 30 days
+  return faker.date.soon({ days: 90 }); // Random flight within the next 90 days
 }
